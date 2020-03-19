@@ -9,16 +9,25 @@
         <style>
             body { margin:0; padding:0; }
             #map { position:absolute; top:0; bottom:0; width:100%; }
-            #stats {
+            #stats-container {
                 position: absolute;
                 bottom: 0;
                 left: 0;
                 right: 0;
-                height: 100px;
+                text-align: center;
                 border: solid 1px white;
-                width: 500px;
+                width: 800px;
                 background-color: white;
+                margin-left: auto;
+                margin-right: auto;
+                margin-top: 10px;
+            }
+            #date {
+                text-align: center;
                 margin: auto;
+            }
+            button {
+                margin:auto;
             }
         </style>
     </head>
@@ -26,12 +35,19 @@
     <body>
 
         <div id='map'></div>
-        <div id="stats">
+        <div id="stats-container">
+            <div id="stats" style="display:none">
+                <h3>CONFIRMED CASES</h3>
+                <h2 id="date"></h2>
+                <br>
+                <button type="button" id="play-pause">Pause</button>
+            </div>
         </div>
         <script src='iso3.js'></script>
         <script src='index.js'></script>
         <script>
-            init();
+            let g_config = { play: true, tick: 0, speed: 5, done: false};
+            init(g_config);
         </script>
     </body>
 </html>

@@ -124,14 +124,25 @@ function processCSVArray(array) {
         }
         countries_data[country] = zipWith(add, countries_data[country], dateWiseData);
     }
+    countries_data['DATES'] = dates;
     return countries_data;
 }
 
 
-async function init() {
+async function init(config) {
     const data = await getCSVFromUrl(confirmed_csv_path);
     const processed = processCSVArray(data)
     let source;
+
+    document.getElementById('play-pause').addEventListener('click', function(e) {
+        if (config.done) {
+            config.play = false;
+            config.tick = 0;
+        }
+        config.play  = !config.play;
+        if (config.play) startAnimation();
+        e.target.innerHTML = !config.play ? 'Play': 'Pause';
+    })
 
     function waitForSource(timestamp) {
         source = map.getSource('states');
@@ -144,45 +155,35 @@ async function init() {
 
     let notFoundlog = false;
 
-    function startAnimation(timeTick) {
+    function startAnimation() {
         // Iterate through all possible ids
         let features = map.queryRenderedFeatures({layers: ['states-layer']});
         if (features.length == 0) {
-            setTimeout(startAnimation, 1000, 0);
+            setTimeout(startAnimation, 500*5/config.speed);
             return;
         }
-        console.warn(timeTick);
+        if (!config.play) return;
+        // TODO: replace hardcode value
+        if (config.tick >= processed['DATES'].length) {
+            document.getElementById('play-pause').innerHTML = 'Replay';
+            config.done = true;
+            return;
+        }
 
-        if (timeTick > 60) return;
-
+        document.getElementById('stats').style.display = 'block';
+        document.getElementById('date').innerHTML = (new Date(processed['DATES'][config.tick])).toDateString();
         features.map(feature => {
             const code = feature.properties.sr_adm0_a3;
             const country = CODE_COUNTRIES_MAP[code];
-            if(processed[country] === undefined) {
-                // if(!notFoundlog) {console.error('Country', country, 'not found');}
-            }
-            else {
+            if(processed[country] !== undefined) {
                 map.setFeatureState(
                     {source: 'states', id: feature.id},
-                    {casualties: processed[country][timeTick]},
+                    {casualties: processed[country][config.tick]},
                 )
             }
         });
-        notFoundlog = true;
-        /*
-        console.warn(features);
-        for(let country in processed) {
-        }
-        for(let x=0;x<270;x++) {
-            map.setFeatureState({
-                source: 'states',
-                id: x,
-            }, {
-                casualties: parseInt(Math.random() * 1000)
-            });
-        }
-        */
-        setTimeout(startAnimation, 1000, timeTick + 1);
+        config.tick += 1;
+        setTimeout(startAnimation, 500*5/config.speed);
     }
 
     mapboxgl.accessToken = 'pk.eyJ1IjoiYmV3YWtlcyIsImEiOiJjazBkbjdmamYwNngwM2R0aWNsdjMxNmx6In0.ERNabyHQRpdIkC2NUBjtcA';
@@ -209,7 +210,7 @@ async function init() {
                     ['linear'],
                     ['number', ['feature-state', 'casualties'], 0],
                     0,
-                    'light green',
+                    '#03c04a',
                     500,
                     'orange',
                     5000,
