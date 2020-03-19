@@ -70,8 +70,18 @@ function CSVToArray(strData, strDelimiter) {
 
 
 async function getCSVFromUrl(url) {
+    // Try and get from localstorage
+    // TODO: check cache time as well(store timestamp and check timestamp to
+    // decide if fetch or not)
+    let rawdata = localStorage.getItem(url);
+    if(rawdata) {
+        console.warn('found in local storage');
+        return CSVToArray(rawdata);
+    }
+    console.warn('not found in local storage');
     const response = await fetch(url);
     const strdata = await response.text();
+    localStorage.setItem(url, strdata);
     return CSVToArray(strdata);
 }
 
@@ -123,27 +133,56 @@ async function init() {
     const processed = processCSVArray(data)
     let source;
 
-    function animate(timestamp) {
+    function waitForSource(timestamp) {
         source = map.getSource('states');
-        console.warn(source);
         if (source === undefined) {
-            setTimeout(animate, 2000);
+            setTimeout(waitForSource, 500);
         } else {
-            startAnimate(source);
+            startAnimation(0);
         }
     }
 
-    function startAnimate(source) {
-        // iterate through all possible ids
-        for(let x=0;x<250;x++) {
+    let notFoundlog = false;
+
+    function startAnimation(timeTick) {
+        // Iterate through all possible ids
+        let features = map.queryRenderedFeatures({layers: ['states-layer']});
+        if (features.length == 0) {
+            setTimeout(startAnimation, 1000, 0);
+            return;
+        }
+        console.warn(timeTick);
+
+        if (timeTick > 60) return;
+
+        features.map(feature => {
+            const code = feature.properties.sr_adm0_a3;
+            const country = CODE_COUNTRIES_MAP[code];
+            if(processed[country] === undefined) {
+                // if(!notFoundlog) {console.error('Country', country, 'not found');}
+            }
+            else {
+                map.setFeatureState(
+                    {source: 'states', id: feature.id},
+                    {casualties: processed[country][timeTick]},
+                )
+            }
+        });
+        notFoundlog = true;
+        /*
+        console.warn(features);
+        for(let country in processed) {
+        }
+        for(let x=0;x<270;x++) {
             map.setFeatureState({
                 source: 'states',
                 id: x,
             }, {
-                clickCount: parseInt(Math.random() * 1000)
+                casualties: parseInt(Math.random() * 1000)
             });
         }
-        setTimeout(startAnimate, 1000);
+        */
+        setTimeout(startAnimation, 1000, timeTick + 1);
     }
 
     mapboxgl.accessToken = 'pk.eyJ1IjoiYmV3YWtlcyIsImEiOiJjazBkbjdmamYwNngwM2R0aWNsdjMxNmx6In0.ERNabyHQRpdIkC2NUBjtcA';
@@ -168,30 +207,27 @@ async function init() {
                 'fill-color': [
                     'interpolate',
                     ['linear'],
-                    ['number', ['feature-state', 'clickCount'], 0],
+                    ['number', ['feature-state', 'casualties'], 0],
                     0,
-                    '#F2F12D',
-                    50,
-                    '#EED322',
-                    100,
-                    '#E6B71E',
-                    1000,
-                    '#DA9C20',
+                    'light green',
+                    500,
+                    'orange',
+                    5000,
+                    'red',
                 ],
-                'fill-outline-color': 'rgba(200, 100, 240, 1)'
+                'fill-outline-color': '#555555'
             }
         });
 
         // When a click event occurs on a feature in the states layer, open a popup at the
         // location of the click, with description HTML from its properties.
         map.on('click', 'states-layer', function(e) {
-            var clickCount = e.features[0].state.clickCount || 0;
-            console.warn(clickCount);
+            var casualties = e.features[0].state.casualties || 0;
             map.setFeatureState({
                 source: 'states',
                 id: e.features[0].id,
             }, {
-                clickCount: clickCount+1
+                casualties: casualties+1
             });
             new mapboxgl.Popup()
             .setLngLat(e.lngLat)
@@ -209,5 +245,5 @@ async function init() {
             map.getCanvas().style.cursor = '';
         });
     });
-    setTimeout(animate, 2000);
+    setTimeout(waitForSource, 500);
 }
