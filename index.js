@@ -14,17 +14,13 @@ function getCSVFromUrl(url) {
         });
     }
     console.warn('not found in local storage');
-    const txtPromise = fetch(url).then(resp => response.text())
-    const promise = new Promise();
+    const txtPromise = fetch(url).then(response => response.text())
 
-    txtPromise.then(strdata => {
+    return Promise.resolve(txtPromise).then(strdata => {
         localStorage.setItem(url, strdata);
-        promise.resolve(UTILS.CSVToArray(strdata));
+        return UTILS.CSVToArray(strdata);
     });
-    return promise;
 }
-
-let logcount = 0;
 
 function startAnimation() {
     let features = g_map.queryRenderedFeatures({'layers': ['covid-cases']});
@@ -75,7 +71,7 @@ function init() {
                 // 'circle-color': '#00b7bf',
                 'circle-color': 'red',
                 'circle-radius': ['round', ['log2', ['+', 1, ['number', ['feature-state', 'casualties'], 0]]]],
-                'circle-opacity': 0.8,
+                'circle-opacity': 0.6,
                 'circle-stroke-width': 1,
                 'circle-stroke-color': '#333',
             }
