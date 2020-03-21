@@ -6,41 +6,7 @@
         <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
         <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.js'></script>
         <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
-        <style>
-            body {
-                margin:0;
-                padding:0;
-                background-color: #222424;
-            }
-            #map {
-                position:absolute;
-                top:0;
-                bottom:0;
-                left: 20%;
-                right: 20%;
-            }
-            #stats-container {
-                position: absolute;
-                left: 0;
-                bottom: 0;
-                right: 0;
-                min-height: 100px;
-                text-align: center;
-                border: solid 1px white;
-                width: 800px;
-                background-color: white;
-                margin-left: auto;
-                margin-right: auto;
-                margin-top: 10px;
-            }
-            #date {
-                text-align: center;
-                margin: auto;
-            }
-            button {
-                margin:auto;
-            }
-        </style>
+        <link href='main.css' rel='stylesheet' />
     </head>
     <!-- mapboxgl.accessToken = 'pk.eyJ1IjoiYmV3YWtlcyIsImEiOiJjazBkbjdmamYwNngwM2R0aWNsdjMxNmx6In0.ERNabyHQRpdIkC2NUBjtcA'; -->
     <body>
@@ -48,14 +14,15 @@
         <div id="stats-container">
             <div id="stats" style="display:none">
                 <h3>CONFIRMED CASES</h3>
+                <div id="slider-container">
+                </div>
                 <h2 id="date"></h2>
                 <br>
-                <button type="button" id="play-pause">Pause</button>
+                <button type="button" id="play-pause">| |</button>
             </div>
         </div>
         <script src='utils.js'></script>
         <script src='mapbox-utils.js'></script>
-        <script src='iso3.js'></script>
         <script src='index.js'></script>
         <script>
             let g_config = { play: true, tick: 0, speed: 8};
@@ -65,11 +32,18 @@
                 // Clear all popups
                 g_map.fire('closePopups');
                 g_config.play  = !g_config.play;
-                if (g_config.play) startAnimation(g_config);
-                e.target.innerHTML = !g_config.play ? 'Play': 'Pause';
+                if (g_config.play) {
+                    // make the slider disabled
+                    document.getElementById('date-slider').setAttribute('disabled', '');
+                    startAnimation();
+                }
+                else {
+                    document.getElementById('date-slider').removeAttribute('disabled');
+                }
+                e.target.innerHTML = !g_config.play ? '▶ ': '| |';
             });
 
-            init(g_config);
+            init();
         </script>
     </body>
 </html>

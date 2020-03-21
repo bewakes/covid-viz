@@ -22,24 +22,58 @@ function getCSVFromUrl(url) {
     });
 }
 
-function startAnimation() {
-    let features = g_map.queryRenderedFeatures({'layers': ['covid-cases']});
-    if (g_config.tick >= g_dates.length) {
-        document.getElementById('play-pause').innerHTML = 'Replay';
-        g_config.play = false;
-        g_config.tick = 0;
-    }
-    if (!g_config.play) return;
+function createSlider(dates, currentDate) {
+    const sliderContainer = document.getElementById('slider-container');
+    const lendates = dates.length;
+    const rangeMax = lendates - 1;
+    const slider = document.createElement('input');
+    slider.setAttribute('type', 'range');
+    slider.setAttribute('id', 'date-slider');
+    slider.setAttribute('min', 0);
+    slider.setAttribute('disabled', '');
+    slider.setAttribute('max', rangeMax);
+    slider.setAttribute('step', 1);
+    slider.style.width = '90%';
 
-    document.getElementById('stats').style.display = 'block';
-    document.getElementById('date').innerHTML = g_dates[g_config.tick];
+    // Add event listener, to change date value when slided
+    slider.addEventListener('input', function(e) {
+        g_config.tick = parseInt(e.target.value);
+        updateFeaturesState();
+        // Fire date-change event for date h3 element
+        const dateChangeEvent = new CustomEvent('date-change', {detail: g_dates[e.target.value]});
+        document.getElementById('date').dispatchEvent(dateChangeEvent);
+    });
 
+    sliderContainer.appendChild(slider);
+}
+
+function updateFeaturesState() {
     g_sourceData.features.map(feature => {
         g_map.setFeatureState(
             {source: 'covid-data', id: feature.id},
             {casualties: g_sourceData.features[feature.id].properties.dateWiseData[g_config.tick]},
         )
     });
+}
+
+function startAnimation() {
+    let features = g_map.queryRenderedFeatures({'layers': ['covid-cases']});
+    if (g_config.tick >= g_dates.length) {
+        document.getElementById('play-pause').innerHTML = '↻';
+        // Enable sliding again
+        document.getElementById('date-slider').removeAttribute('disabled');
+        g_config.play = false;
+        g_config.tick = 0;
+        return;
+    }
+    if (!g_config.play) return;
+
+    document.getElementById('stats').style.display = 'block';
+    document.getElementById('date').innerHTML = g_dates[g_config.tick];
+
+    updateFeaturesState();
+
+    document.getElementById('date-slider').value = g_config.tick;
     g_config.tick += 1;
     setTimeout(startAnimation, 500*5/g_config.speed);
 }
@@ -57,6 +91,7 @@ function init() {
         const csvdata = await getCSVFromUrl(confirmed_csv_path);
         g_dates = csvdata[0].slice(4).map(x => (new Date(x)).toDateString());
         // Set the global sourceData
+        createSlider(g_dates);
         g_sourceData = MAPUTILS.createSourceFromCsv(csvdata);
 
         g_map.addSource('covid-data', {
@@ -107,5 +142,10 @@ function init() {
         if(g_map.__popup) {
             g_map.__popup.remove();
         }
+    });
+
+    // Custom event listener for our date display
+    document.getElementById('date').addEventListener('date-change', function(e) {
+        e.target.innerHTML = e.detail;
     });
 }
