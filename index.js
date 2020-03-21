@@ -78,4 +78,34 @@ function init() {
         });
         startAnimation();
     });
+
+    g_map.on('click', 'covid-cases', function(e) {
+        const coordinates = e.features[0].geometry.coordinates.slice();
+        const province = e.features[0].properties.province;
+        const country = e.features[0].properties.country;
+
+        if(!g_config.play) {
+            g_map.__popup = new mapboxgl.Popup()
+                .setLngLat(coordinates)
+                .setHTML(`${country}, ${province}<hr/>${e.features[0].state.casualties}`)
+            g_map.__popup.addTo(g_map);
+        }
+    });
+
+    // Change the cursor to a pointer when the mouse is over the covid-cases layer.
+    g_map.on('mouseenter', 'covid-cases', function() {
+        g_map.getCanvas().style.cursor = 'pointer';
+    });
+
+    // Change it back to a pointer when it leaves.
+    g_map.on('mouseleave', 'covid-cases', function() {
+        g_map.getCanvas().style.cursor = '';
+    });
+
+    // Custom event listener to close popups
+    g_map.on('closePopups', () => {
+        if(g_map.__popup) {
+            g_map.__popup.remove();
+        }
+    });
 }

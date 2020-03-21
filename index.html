@@ -62,6 +62,8 @@
             let g_map, g_sourceData, g_dates;
 
             document.getElementById('play-pause').addEventListener('click', function(e) {
+                // Clear all popups
+                g_map.fire('closePopups');
                 g_config.play  = !g_config.play;
                 if (g_config.play) startAnimation(g_config);
                 e.target.innerHTML = !g_config.play ? 'Play': 'Pause';
