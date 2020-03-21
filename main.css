@@ -29,12 +29,12 @@ body {
     margin-top: 10px;
 }
 
-input[type=range] {
+input[type=range]:disabled {
     -webkit-appearance: none;
     background: #555;
 }
 
-input[type=range]:disabled {
+input[type=range] {
     -webkit-appearance: none;
     background: #ccc;
 }

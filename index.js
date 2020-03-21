@@ -42,6 +42,8 @@ function createSlider(dates, currentDate) {
         // Fire date-change event for date h3 element
         const dateChangeEvent = new CustomEvent('date-change', {detail: g_dates[e.target.value]});
         document.getElementById('date').dispatchEvent(dateChangeEvent);
+        // Fire close popups for map
+        g_map.fire('closePopups');
     });
 
     sliderContainer.appendChild(slider);
