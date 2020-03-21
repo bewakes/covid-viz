@@ -8,16 +8,21 @@ function getCSVFromUrl(url) {
     // decide if fetch or not)
     let rawdata = localStorage.getItem(url);
     if(rawdata) {
-        console.warn('found in local storage');
-        return new Promise(resolve => {
-            resolve(UTILS.CSVToArray(rawdata));
-        });
+        const currTimestamp = new Date().getTime();
+        const storedTimestamp = parseInt(localStorage.getItem('cache_timestamp'));
+        if(currTimestamp - storedTimestamp < (g_config.cache_time_minutes || 30) * 60 * 1000) {
+            console.warn('Latest data found in local storage');
+            return new Promise(resolve => {
+                resolve(UTILS.CSVToArray(rawdata));
+            });
+        }
     }
-    console.warn('not found in local storage');
+    console.warn('Latest data not found in local storage');
     const txtPromise = fetch(url).then(response => response.text())
 
     return Promise.resolve(txtPromise).then(strdata => {
         localStorage.setItem(url, strdata);
+        localStorage.setItem('cache_timestamp', new Date().getTime());
         return UTILS.CSVToArray(strdata);
     });
 }
