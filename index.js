@@ -135,10 +135,6 @@ async function init(config) {
     let source;
 
     document.getElementById('play-pause').addEventListener('click', function(e) {
-        if (config.done) {
-            config.play = false;
-            config.tick = 0;
-        }
         config.play  = !config.play;
         if (config.play) startAnimation();
         e.target.innerHTML = !config.play ? 'Play': 'Pause';
@@ -162,13 +158,13 @@ async function init(config) {
             setTimeout(startAnimation, 500*5/config.speed);
             return;
         }
-        if (!config.play) return;
         // TODO: replace hardcode value
         if (config.tick >= processed['DATES'].length) {
             document.getElementById('play-pause').innerHTML = 'Replay';
-            config.done = true;
-            return;
+            config.play = false;
+            config.tick = 0;
         }
+        if (!config.play) return;
 
         document.getElementById('stats').style.display = 'block';
         document.getElementById('date').innerHTML = (new Date(processed['DATES'][config.tick])).toDateString();
@@ -190,6 +186,7 @@ async function init(config) {
     var map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/bewakes/ck7ycdidh0qms1intl5lvja3y',
+        renderWorldCopies: false,
     });
     map.on('load', function() {
         // Add a source for the state polygons.
@@ -223,13 +220,6 @@ async function init(config) {
         // When a click event occurs on a feature in the states layer, open a popup at the
         // location of the click, with description HTML from its properties.
         map.on('click', 'states-layer', function(e) {
-            var casualties = e.features[0].state.casualties || 0;
-            map.setFeatureState({
-                source: 'states',
-                id: e.features[0].id,
-            }, {
-                casualties: casualties+1
-            });
             new mapboxgl.Popup()
             .setLngLat(e.lngLat)
             .setHTML(e.features[0].properties.sr_sov_a3)
