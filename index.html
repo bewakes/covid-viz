@@ -13,7 +13,11 @@
         <div id='map'></div>
         <div id="stats-container">
             <div id="stats" style="display:none">
-                <h3>CONFIRMED CASES</h3>
+                <select id="data-type" name="data_type">
+                    <option value="confirmed">Confirmed Cases</option>
+                    <option value="deaths">Deaths</option>
+                    <option value="recovered">Recovered</option>
+                </select>
                 <div id="slider-container">
                 </div>
                 <h2 id="date"></h2>
@@ -26,7 +30,7 @@
         <script src='index.js'></script>
         <script>
             let g_config = { play: true, tick: 0, speed: 8, cache_time_minutes: 30};
-            let g_map, g_sourceData, g_dates;
+            let g_map, g_sourceData = {}, g_dates;
 
             document.getElementById('play-pause').addEventListener('click', function(e) {
                 // Clear all popups

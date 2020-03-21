@@ -1,6 +1,14 @@
-const confirmed_csv_path = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv'
-const deaths_csv_path = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv'
-const recovered_csv_path = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Recovered.csv'
+const DATA_TYPES_URLS = {
+    confirmed: 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv',
+    deaths: 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv',
+    recovered: 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Recovered.csv',
+};
+
+const DATA_TYPE_COLORS = {
+    confirmed: '#00b7bf',
+    deaths: 'red',
+    recovered: 'lightgreen',
+};
 
 function getCSVFromUrl(url) {
     // Try and get from localstorage
@@ -27,7 +35,10 @@ function getCSVFromUrl(url) {
     });
 }
 
-function createSlider(dates, currentDate) {
+function createSlider(dates) {
+    if(document.getElementById('date-slider')) {
+        return;
+    }
     const sliderContainer = document.getElementById('slider-container');
     const lendates = dates.length;
     const rangeMax = lendates - 1;
@@ -86,6 +97,34 @@ function startAnimation() {
 }
 
 
+function getData(data_type) {
+    const color = DATA_TYPE_COLORS[data_type];
+
+    getCSVFromUrl(DATA_TYPES_URLS[data_type])
+        .then(csvdata => {
+            g_dates = csvdata[0].slice(4).map(x => (new Date(x)).toDateString());
+            // Set the global sourceData
+            g_sourceData = MAPUTILS.createSourceFromCsv(csvdata);
+            createSlider(g_dates);
+            const source = g_map.getSource('covid-data');
+            g_config.tick = 0;
+            g_config.play = true;
+            if (source) {
+                source.setData(g_sourceData);
+            }
+            else {
+                g_map.addSource('covid-data', {
+                    type: 'geojson',
+                    data: g_sourceData,
+                });
+                MAPUTILS.addCovidLayer('covid-cases', 'covid-data');
+            }
+            g_map.setPaintProperty('covid-cases', 'circle-color', color);
+            startAnimation();
+        });
+}
+
+
 function init() {
     mapboxgl.accessToken = 'pk.eyJ1IjoiYmV3YWtlcyIsImEiOiJjazBkbjdmamYwNngwM2R0aWNsdjMxNmx6In0.ERNabyHQRpdIkC2NUBjtcA';
     g_map = new mapboxgl.Map({
@@ -94,31 +133,8 @@ function init() {
         renderWorldCopies: false,
     });
 
-    g_map.on('load', async function() {
-        const csvdata = await getCSVFromUrl(confirmed_csv_path);
-        g_dates = csvdata[0].slice(4).map(x => (new Date(x)).toDateString());
-        // Set the global sourceData
-        createSlider(g_dates);
-        g_sourceData = MAPUTILS.createSourceFromCsv(csvdata);
-
-        g_map.addSource('covid-data', {
-            type: 'geojson',
-            data: g_sourceData,
-        });
-        g_map.addLayer({
-            'id': 'covid-cases',
-            'type': 'circle',
-            'source': 'covid-data',
-            'paint': {
-                // 'circle-color': '#00b7bf',
-                'circle-color': 'red',
-                'circle-radius': ['round', ['log2', ['+', 1, ['number', ['feature-state', 'casualties'], 0]]]],
-                'circle-opacity': 0.6,
-                'circle-stroke-width': 1,
-                'circle-stroke-color': '#333',
-            }
-        });
-        startAnimation();
+    g_map.on('load', function() {
+        getData(document.getElementById('data-type').value);
     });
 
     g_map.on('click', 'covid-cases', function(e) {
@@ -154,5 +170,11 @@ function init() {
     // Custom event listener for our date display
     document.getElementById('date').addEventListener('date-change', function(e) {
         e.target.innerHTML = e.detail;
+    });
+
+    // On change event listener for data_type selector
+    document.getElementById('data-type').addEventListener('change', function(e) {
+        const value = e.target.value;
+        getData(value);
     });
 }

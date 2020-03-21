@@ -25,3 +25,21 @@ MAPUTILS.createSourceFromCsv = function (csvArray) {
         ),
     };
 }
+
+MAPUTILS.addCovidLayer = function(id, source) {
+    const layer = g_map.getLayer('covid-cases');
+    if (!layer) {
+        g_map.addLayer({
+            'id': id,
+            'type': 'circle',
+            'source': source,
+            'paint': {
+                'circle-color': 'red',
+                'circle-radius': ['round', ['log2', ['+', 1, ['number', ['feature-state', 'casualties'], 0]]]],
+                'circle-opacity': 0.6,
+                'circle-stroke-width': 1,
+                'circle-stroke-color': '#333',
+            }
+        });
+    }
+}
