@@ -21,9 +21,10 @@
             }
             #stats-container {
                 position: absolute;
-                bottom: 0;
                 left: 0;
+                bottom: 0;
                 right: 0;
+                min-height: 100px;
                 text-align: center;
                 border: solid 1px white;
                 width: 800px;
@@ -52,10 +53,20 @@
                 <button type="button" id="play-pause">Pause</button>
             </div>
         </div>
+        <script src='utils.js'></script>
+        <script src='mapbox-utils.js'></script>
         <script src='iso3.js'></script>
         <script src='index.js'></script>
         <script>
             let g_config = { play: true, tick: 0, speed: 8};
+            let g_map, g_sourceData, g_dates;
+
+            document.getElementById('play-pause').addEventListener('click', function(e) {
+                g_config.play  = !g_config.play;
+                if (g_config.play) startAnimation(g_config);
+                e.target.innerHTML = !g_config.play ? 'Play': 'Pause';
+            });
+
             init(g_config);
         </script>
     </body>
