@@ -11,9 +11,7 @@ const DATA_TYPE_COLORS = {
 };
 
 function getCSVFromUrl(url) {
-    // Try and get from localstorage
-    // TODO: check cache time as well(store timestamp and check timestamp to
-    // decide if fetch or not)
+    // Try and get from localstorage, also check cached time
     let rawdata = localStorage.getItem(url);
     if(rawdata) {
         const currTimestamp = new Date().getTime();

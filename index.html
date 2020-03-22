@@ -15,12 +15,14 @@
         <div id='map'></div>
         <div id="stats-container" style="display: none">
             <div id="stats">
-                <select id="data-type" class="stats-child" name="data_type">
+                <div class="stats-child">
+                <select id="data-type" name="data_type">
                     <option value="confirmed">Confirmed Cases</option>
                     <option value="deaths">Total Deaths</option>
                     <option value="recovered">Recovered Cases</option>
                 </select>
-                <b class="stats-child" id="date"></b>
+                </div>
+                <div class="stats-child"><b id="date"></b></div>
             </div>
             <div id="actions-container">
                 <div id="slider-container">

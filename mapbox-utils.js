@@ -27,7 +27,7 @@ MAPUTILS.createSourceFromCsv = function (csvArray) {
 }
 
 MAPUTILS.addCovidLayer = function(id, source) {
-    const layer = g_map.getLayer('covid-cases');
+    const layer = g_map.getLayer(id);
     if (!layer) {
         g_map.addLayer({
             'id': id,

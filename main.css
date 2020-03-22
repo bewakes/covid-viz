@@ -2,6 +2,7 @@ body {
     margin:0;
     padding:0;
     background-color: #222424;
+    overflow: hidden;
 }
 
 #map {
@@ -90,6 +91,17 @@ button {
       text-align: center;
       display: block;
   }
+
+  #map {
+      left: 0;
+      right:0;
+  }
+
+  #stats-container {
+      width: 100%;
+      max-width: 100%;
+  };
+
   .stats-child {
       display: block;
       margin: auto;
