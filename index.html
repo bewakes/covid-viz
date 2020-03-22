@@ -11,17 +11,18 @@
     <!-- mapboxgl.accessToken = 'pk.eyJ1IjoiYmV3YWtlcyIsImEiOiJjazBkbjdmamYwNngwM2R0aWNsdjMxNmx6In0.ERNabyHQRpdIkC2NUBjtcA'; -->
     <body>
         <div id='map'></div>
-        <div id="stats-container">
-            <div id="stats" style="display:none">
+        <div id="stats-container" style="display: none">
+            <div id="stats">
                 <select id="data-type" name="data_type">
                     <option value="confirmed">Confirmed Cases</option>
-                    <option value="deaths">Deaths</option>
-                    <option value="recovered">Recovered</option>
+                    <option value="deaths">Total Deaths</option>
+                    <option value="recovered">Recovered Cases</option>
                 </select>
+                <b id="date"></b>
+            </div>
+            <div id="actions-container">
                 <div id="slider-container">
                 </div>
-                <h2 id="date"></h2>
-                <br>
                 <button type="button" id="play-pause">| |</button>
             </div>
         </div>
@@ -44,7 +45,7 @@
                 else {
                     document.getElementById('date-slider').removeAttribute('disabled');
                 }
-                e.target.innerHTML = !g_config.play ? '▶ ': '| |';
+                e.target.innerHTML = !g_config.play ? '▶': '<b>| |</b>';
             });
 
             init();

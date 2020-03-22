@@ -86,7 +86,7 @@ function startAnimation() {
     }
     if (!g_config.play) return;
 
-    document.getElementById('stats').style.display = 'block';
+    document.getElementById('stats-container').style.display = 'block';
     document.getElementById('date').innerHTML = g_dates[g_config.tick];
 
     updateFeaturesState();
