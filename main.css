@@ -55,7 +55,6 @@ input[type=range] {
 #date {
     flex: 0 0 auto;
     font-family: 'Space Mono', monospace;
-    padding: 5px;
     font-size: 1.2em;
     line-height: 1.5em;
     margin-left: 10px;
@@ -84,4 +83,17 @@ button {
     color: #ccc;
     padding: 5px 10px 5px 10px ;
     margin-bottom: 10px;
+}
+
+@media only screen and (max-width: 768px) {
+  #stats {
+      text-align: center;
+      display: block;
+  }
+  .stats-child {
+      display: block;
+      margin: auto;
+      padding: 0px;
+  }
+
 }

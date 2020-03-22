@@ -5,7 +5,7 @@ const DATA_TYPES_URLS = {
 };
 
 const DATA_TYPE_COLORS = {
-    confirmed: '#00b7bf',
+    confirmed: '#FF4500',
     deaths: 'red',
     recovered: 'lightgreen',
 };

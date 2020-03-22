@@ -36,7 +36,7 @@ MAPUTILS.addCovidLayer = function(id, source) {
             'paint': {
                 'circle-color': 'red',
                 'circle-radius': ['round', ['log2', ['+', 1, ['number', ['feature-state', 'casualties'], 0]]]],
-                'circle-opacity': 0.6,
+                'circle-opacity': 0.8,
                 'circle-stroke-width': 1,
                 'circle-stroke-color': '#333',
             }
