@@ -131,6 +131,7 @@ function init() {
         container: 'map',
         style: 'mapbox://styles/bewakes/ck7ycdidh0qms1intl5lvja3y',
         renderWorldCopies: false,
+        center: [-20, 0],
     });
 
     g_map.on('load', function() {
