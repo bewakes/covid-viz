@@ -93,7 +93,7 @@ function startAnimation() {
 
     document.getElementById('date-slider').value = g_config.tick;
     g_config.tick += 1;
-    setTimeout(startAnimation, 500*5/g_config.speed);
+    g_timeout = setTimeout(startAnimation, 500*5/g_config.speed);
 }
 
 
@@ -120,6 +120,8 @@ function getData(data_type) {
                 MAPUTILS.addCovidLayer('covid-cases', 'covid-data');
             }
             g_map.setPaintProperty('covid-cases', 'circle-color', color);
+            // Clear timeout
+            clearTimeout(g_timeout);
             startAnimation();
         });
 }

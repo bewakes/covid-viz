@@ -33,7 +33,7 @@
         <script src='index.js'></script>
         <script>
             let g_config = { play: true, tick: 0, speed: 8, cache_time_minutes: 30};
-            let g_map, g_sourceData = {}, g_dates;
+            let g_map, g_sourceData = {}, g_dates, g_timeout;
 
             document.getElementById('play-pause').addEventListener('click', function(e) {
                 // Clear all popups
@@ -42,6 +42,7 @@
                 if (g_config.play) {
                     // make the slider disabled
                     document.getElementById('date-slider').setAttribute('disabled', '');
+                    clearTimeout(g_timeout);
                     startAnimation();
                 }
                 else {
